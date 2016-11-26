@@ -23,7 +23,7 @@ endfm
 
 ---KMP Partially evaluated program after renaming.
 fmod KMPE is
-	inc KMP-HEAD .
+	inc KMP-HEADER .
 	var PP : SString .
 	
 	op match : SString -> Bool .

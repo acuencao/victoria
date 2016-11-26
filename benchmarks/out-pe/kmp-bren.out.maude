@@ -1,0 +1,50 @@
+---Header of the KMP
+fmod KMP-HEADER is
+	pr NAT .
+	ops f g h : -> Nat . ---maximun length of the SString. Eg.: if f=10, then repeat 9 'a' + 'b' + 'nc'.
+  eq f =  100000 . 
+  eq g = 1000000 .
+  eq h = 5000000 .	
+    	
+	sorts Symbol SString .
+	subsort Symbol < SString .
+	ops a b : -> Symbol .
+	op nc : -> SString .    
+	op __ : Symbol SString -> SString .
+		
+	vars SE SS : Symbol . var N : Nat . var S : SString .  
+  ---Parameters: <Symbol start, String, maximun length>
+	op create : Symbol SString Nat -> SString . ---function to create the input String
+	eq create(SS, S, 1) = SS S .
+	eq create(SS, S, s(N)) = create(SS, SS S, N) [owise] .	
+endfm
+
+---red in KMP-HEADER : create(a, b nc, f) . ---only create a SString of a+n+nc
+
+---KMP Partially evaluated program before renaming.
+fmod KMPE-O is
+	inc KMP-HEAD .
+	var PP : SString .
+	
+	op match : SString SString -> Bool .
+	eq match(a a b nc, nc) = false .
+	eq match(a a b nc, a PP) = loop3(a a b nc, PP, a a b nc, PP) .
+	eq match(a a b nc, b PP) = loop2(a a b nc, PP, a a b nc, PP) .
+
+	op loop1 : SString SString SString SString -> Bool .
+	eq loop1(a a b nc, nc, a a b nc, nc) = false .
+	eq loop1(a a b nc, a PP, a a b nc, a PP) = loop1(a a b nc, PP, a a b nc, PP) .
+	eq loop1(a a b nc, b PP, a a b nc, b PP) = true .
+	
+	op loop2 : SString SString SString SString -> Bool .
+	eq loop2(a a b nc, nc, a a b nc, nc) = false .
+	eq loop2(a a b nc, a PP, a a b nc, a PP) = loop3(a a b nc, PP, a a b nc, PP) .
+	eq loop2(a a b nc, b PP, a a b nc, b PP) = loop2(a a b nc, PP, a a b nc, PP) .
+
+	op loop3 : SString SString SString SString -> Bool .
+	eq loop3(a a b nc, nc, a a b nc, nc) = false .
+	eq loop3(a a b nc, a PP, a a b nc, a PP) = loop1(a a b nc, PP, a a b nc, PP) .
+	eq loop3(a a b nc, b PP, a a b nc, b PP) = loop2(a a b nc, PP, a a b nc, PP) .	
+endfm
+
+---red in KMPE-O : match((a a b nc), create(a, b nc, f)) . ---goal

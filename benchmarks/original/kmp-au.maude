@@ -25,7 +25,7 @@ endfm
 
 ---KMP-AU modulo axioms
 fmod KMP-AU is
-	inc KMP-HEAD-AU .	
+	inc KMP-HEADER-AU .	
 
 	vars PP SS1 SS2 : SString .
 

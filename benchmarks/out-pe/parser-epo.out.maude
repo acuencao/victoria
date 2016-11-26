@@ -1,0 +1,47 @@
+---Parser Maude program original version
+fmod PARSER-HEADER is	
+	pr NAT .    
+	ops f g h : -> Nat . ---maximun length of the SString
+	eq f = 100000 .
+  eq g = 1000000 .
+  eq h = 5000000 .
+	    
+	sorts Symbol NSymbol TSymbol SString Production Grammar Parsing . 
+	subsort Production < Grammar .
+	subsort TSymbol NSymbol < Symbol .	
+	subsort TSymbol < SString .   
+	
+	ops 0 1 2 eps : -> TSymbol . 
+	op S : -> NSymbol .
+	op init : -> NSymbol .    
+	op mt : -> Grammar .	
+	op __ : TSymbol SString -> SString [right id: eps] . 
+	op _->_ : NSymbol TSymbol -> Production . 
+	op _->_._ : NSymbol TSymbol NSymbol -> Production . 
+	op _;_ : Grammar Grammar -> Grammar [assoc comm id: mt] .
+	op _|_|_ : Symbol SString Grammar -> Parsing .    
+	
+	var SS : TSymbol . vars  S : SString . var N : Nat .  
+---Parameters: <TSymbol start, SString, maximun length>
+	op create : TSymbol SString Nat -> SString . ---function to create the input String
+	eq create(SS, S, 1) = S .
+	eq create(SS, S, s(N)) = create(SS, SS S, N) [owise] .	  
+endfm
+
+---red in PARSER-ALL : create(0, 1, f)  .
+---red in PARSER-ALL : create(0, create(1, 1, f), f) .
+
+fmod PARSER-EPO is 
+	inc PARSER-HEADER .    
+	vars  L : SString . 
+	
+  eq [0] : init | eps | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) = eps | eps | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) .
+	eq [1] : init | 0 L | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) = init | L | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) .
+	eq [2] : init | 1 | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) = eps | eps | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) .	
+	eq [3] : init | 1 1 L | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) = S | L | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) .
+	eq [4] : S | eps | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) = eps | eps | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) .
+	eq [5] : S | 1 L | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) = S | L | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) .
+endfm
+
+---red in PARSER-EPO : init | create(0, create(1, 1, f), f) | (init -> 0 . init) ; (init -> eps) ; (init -> 1 . S) ; (S -> 1 . S) ; (S -> eps) . ---goal
+

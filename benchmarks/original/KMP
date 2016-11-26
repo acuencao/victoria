@@ -1,5 +1,5 @@
 ---Header of the KMP
-fmod KMP-HEAD is
+fmod KMP-HEADER is
 	pr NAT .
 	ops f g h : -> Nat . ---maximun length of the SString. Eg.: if f=10, then repeat 9 'a' + 'b' + 'nc'.
   eq f =  100000 . 
@@ -19,8 +19,10 @@ fmod KMP-HEAD is
 	eq create(SS, S, s(N)) = create(SS, SS S, N) [owise] .	
 endfm
 
+---red in KMP-HEADER : create(a, b nc, f) . ---only create a SString of a+n+nc
+
 fmod KMP is
-	inc KMP-HEAD .
+	inc KMP-HEADER .
 	vars PP SS OP OS : SString .
 	vars P S : Symbol .
 	
@@ -36,7 +38,7 @@ fmod KMP is
 			then loop(PP, SS, OP, OS)  
 			else next(OP, OS) fi [variant] .
 	
-	op if?_then_else_fi : Bool Bool Bool -> [Bool] [strat(1 2 0)] .
+	op if?_then_else_fi : Bool Bool Bool -> [Bool] [strat(1 0)] .
 	eq if? true then B1:Bool else B2:Bool fi = B1:Bool .
 	eq if? false then B1:Bool else B2:Bool  fi = B2:Bool .
 		
@@ -50,3 +52,5 @@ fmod KMP is
 	eq next(OP, nc) = false [variant] .
 	eq next(OP, (S SS)) = loop(OP, SS, OP, SS) [variant] .
 endfm
+
+---red in KMP : match((a a b nc), create(a, b nc, f)) . ---goal

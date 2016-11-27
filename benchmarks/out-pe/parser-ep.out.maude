@@ -1,0 +1,49 @@
+fmod PARSER-HEADER is	
+	pr NAT .    
+	ops f g h : -> Nat .
+	eq f =  100000 .
+ 	eq g =  1000000 .
+ 	eq h =  5000000 .
+	    
+	sorts Symbol NSymbol TSymbol SString Production Grammar Parsing . 
+	subsort Production < Grammar .
+	subsort TSymbol NSymbol < Symbol .	
+	subsort TSymbol < SString .   
+	
+	ops 0 1 2 eps : -> TSymbol . 
+	op S : -> NSymbol .
+	op init : -> NSymbol .    
+	op mt : -> Grammar .	
+	op __ : TSymbol SString -> SString [right id: eps] . 
+	
+	var SS : TSymbol . vars  L : SString . var N : Nat .  
+---Parameters: <Symbol start, String, maximun length>
+	op create : TSymbol SString Nat -> SString . ---function to create the input String
+	eq create(SS, L, 1) = L .
+	eq create(SS, L, s(N)) = create(SS, SS L, N) [owise] .	
+endfm
+
+---red in PARSER-HEADER : create(0, create(1, 1, f), f) . ---with f=5, we'll have the following String: "0 0 0 1 1 1 1 1"
+---red in PARSER-HEADER : create(0, 1, f)  . ---with f=5, we'll have the following String: "0 0 0 0 1"
+
+fmod PARSER-EP is     
+	inc PARSER-HEADER .    
+	
+   op feps : -> Parsing [ctor] .
+   op fS : SString -> Parsing .
+   op finit : SString -> Parsing .
+   	
+   var E : TSymbol . vars N M : NSymbol . 
+   vars  L : SString . var G : Grammar .
+
+	eq finit(eps) = feps .
+	eq finit(0 L) = finit(L) .
+	eq finit(1) = feps .
+	eq finit(1 1 L) = fS(L) .
+	eq fS(eps) = feps .	
+	eq fS(1 L) = fS(L) .	
+endfm
+
+---red in PARSER-EP : finit(create(create(1, 1, f), 0, f)) . ---goal 100K
+---red in PARSER-EP : finit(create(create(1, 1, g), 0, g)) . ---goal 1M
+---red in PARSER-EP : finit(create(create(1, 1, h), 0, h)) . ---goal 5M
